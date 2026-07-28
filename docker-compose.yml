@@ -1,28 +1,30 @@
 version: "3.8"
 
 services:
+
   mysql:
     image: mysql:8.0
     container_name: expense-mysql
     environment:
-      MYSQL_DATABASE: expense_app_db
-      MYSQL_USER: expenseuser
-      MYSQL_PASSWORD: expensepass
       MYSQL_ROOT_PASSWORD: rootpass
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.2
+    image: quay.io/keycloak/keycloak:26.6.1
     container_name: expense-keycloak
+
     command:
       - start-dev
-      - --import-realm
+
     environment:
       KC_DB: mysql
-      KC_DB_URL: jdbc:mysql://mysql:3306/expense_app_db
+
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak_db
+
       KC_DB_USERNAME: expenseuser
       KC_DB_PASSWORD: expensepass
 
@@ -31,9 +33,6 @@ services:
 
     ports:
       - "8080:8080"
-
-    volumes:
-      - ./keycloak/import:/opt/keycloak/data/import
 
     depends_on:
       - mysql
