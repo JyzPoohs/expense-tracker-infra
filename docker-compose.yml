@@ -1,10 +1,14 @@
-version: "3.8"
-
 services:
 
   mysql:
     image: mysql:8.0
     container_name: expense-mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
@@ -16,9 +20,10 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.1
     container_name: expense-keycloak
-
+    restart: unless-stopped
     command:
       - start-dev
+      - --import-realm
 
     environment:
       KC_DB: mysql
@@ -35,7 +40,11 @@ services:
       - "8180:8080"
 
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+    
+    volumes:
+      - ./keycloak/import:/opt/keycloak/data/import
 
 volumes:
   mysql_data:
