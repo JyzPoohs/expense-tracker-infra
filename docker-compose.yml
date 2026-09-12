@@ -12,7 +12,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "3307:3306"
+      - "${MYSQL_HOST_PORT:-3307}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init:/docker-entrypoint-initdb.d
@@ -29,7 +29,7 @@ services:
       KC_DB: mysql
 
       KC_DB_URL: jdbc:mysql://mysql:3306/keycloak_db
-      KC_HOSTNAME_URL: http://localhost:8180
+      KC_HOSTNAME_URL: http://localhost:${KEYCLOAK_HOST_PORT:-1880}
       KC_DB_USERNAME: ${KC_DB_USERNAME}
       KC_DB_PASSWORD: ${KC_DB_PASSWORD}
 
@@ -37,7 +37,7 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
 
     ports:
-      - "8180:8080"
+      - "${KEYCLOAK_HOST_PORT:-1880}:8080"
 
     depends_on:
       mysql:
