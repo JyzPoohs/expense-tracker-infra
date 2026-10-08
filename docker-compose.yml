@@ -46,5 +46,20 @@ services:
     volumes:
       - ./keycloak/import:/opt/keycloak/data/import
 
+  redis:
+    image: redis:7-alpine
+    container_name: expense-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 volumes:
   mysql_data:
+  redis_data:
